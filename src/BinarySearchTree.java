@@ -1,14 +1,21 @@
 import java.util.LinkedList;
-import java.util.Objects;
 import java.util.Queue;
 
+/**
+ * CLASSE BinarySearchTree
+ * Trabalhando com árvore binária de pesquisa
+ * */
+
 class BinarySearchTree {
+
     private Node root;
+
     public BinarySearchTree() {
         root = null;
     }
 
     public void add(Integer v) {
+
         Node prev, current;
 
         // cria um novo nodo
@@ -20,10 +27,9 @@ class BinarySearchTree {
         node.left = null;
 
         // se a raiz está nula, a árvore está vazia
-        if (root == null)
+        if (root == null) {
             root = node;
-
-        else {
+        } else {
             current = root;
             // percorre a árvore
             while (true) {
@@ -58,7 +64,7 @@ class BinarySearchTree {
         // começa a procurar desde raiz
         Node current = root;
         // enquanto nao encontrou
-        while (!Objects.equals(current.element, v)) {
+        while (current.element != v) {
             if (v < current.element)
                 current = current.left; // caminha para esquerda
             else
@@ -84,7 +90,7 @@ class BinarySearchTree {
         boolean child_left = true;
 
         // buscando o valor
-        while (!Objects.equals(current.element, v)) {
+        while (current.element != v) {
             // enquanto nao encontrou
             father = current;
             // caminha para esquerda
@@ -246,10 +252,11 @@ class BinarySearchTree {
     public void treeInfo() {
         System.out.println("Altura da arvore: " + height(root));
         System.out.println("Quantidade de Nós: " + countNodes(root));
-        System.out.println("Nível do menor nodo: " + minNodeLevel(root));
+        System.out.println("Nível do menor nodo: " + minNodeLevel());
         System.out.println("Diferença entre o valor máximo e a raiz: " + diffMaxRoot());
         System.out.println("Contagem dos nodos internos (galhos): " + countInternalNodes(root));
         System.out.println("Soma dos valores de nodos externos (folhas): " + sumExternalNodes(root));
+
     }
 
     public void printTree() {
@@ -261,165 +268,128 @@ class BinarySearchTree {
         }
     }
 
-    /**
-     * Método minNodeLeve(...)
-     * método retorna o nível do nodo com menor valor existente na árvore
-     * @param current
-     * @return valor do menor nodo da árvore
-     */
-    public int minNodeLevel(Node current) {
-        if (current == null)
-            return -1;
+    public int minNodeLevel() {
+        //se árvore vazia, retorna 0
+        if (root == null) {
+            return 0;
+        }
 
+        //inicia pelo root e atribui o nível 0
+        Node current = root;
         int level = 0;
+
+        //enquanto left diferente de null, corre para esquerda e incrementa level
         while (current.left != null) {
             current = current.left;
             level++;
         }
+
+        //quando encontra o menor, retorna o nível
         return level;
     }
 
-    /**
-     * Método diffMaxRoot(...)
-     * método retorna a diferença entre o valor do nodo máximo da árvore e a raiz
-     * @return valor da subtração do valor do nodo de maior valor com o valor do nodo raiz
-     */
     public int diffMaxRoot() {
-        // arvore vazia
-        if (root == null)
+        if (root == null) {
             return 0;
+        }
 
-        // nodo maximo do lado direito
-        Node maxNode = findMaxNode(root);
+        //inicia a procura pela raiz
+        Node current = root;
 
-        // diferença entre o valor maximo e a raiz
-        return maxNode.element - root.element;
+        //enquanto houver números à direita, ou seja, maiores que a raiz e seus subsequentes, continua percorrendo a árvore
+        while (current.right != null) {
+            current = current.right;
+        }
+
+        //subtrai o número mais à direita (maior) da raiz
+        return current.element - root.element;
     }
 
-    private Node findMaxNode(Node current) {
-        if (current.right == null)
-            return current;
-        return findMaxNode(current.right);
-    }
-
-    /**
-     * Método countInternalNodes(...)
-     * método retorna a quantidade de nodos internos (galhos) de uma árvore
-     * @param current
-     * @return valor inteiro correspondente a quantidade de nodos folha
-     */
-    public int countInternalNodes(Node current) {
-        if (current == null || (current.left == null && current.right == null))
+    public int countInternalNodes(Node node) {
+        if (node == null) {
             return 0;
-        return 1 + countInternalNodes(current.left) + countInternalNodes(current.right);
-    }
+        }
 
-    /**
-     * Método sumExternalNodes(...)
-     * método retorna a soma dos valores de todos os nodos externos (folhas) de uma árvore
-     * @param current
-     * @return valor inteiro correspondente a soma dos valores de todos os nodos folha
-     */
-    public int sumExternalNodes(Node current) {
-        if (current == null)
+        //verifica se é folha
+        if (node.left == null && node.right == null) {
             return 0;
+        }
 
-        if (current.left == null && current.right == null)
-            return current.element;
-
-        return sumExternalNodes(current.left) + sumExternalNodes(current.right);
+        //conta o nodo atual e os anteriores
+        return 1 + countInternalNodes(node.left) + countInternalNodes(node.right);
     }
 
-    /**
-     * Método breadthFirstOrder(...)
-     * método que imprime o caminhamento em largura
-     */
+    public int sumExternalNodes(Node node) {
+        if (node == null) {
+            return 0;
+        }
+
+        //verifica se é folha
+        if (node.left == null && node.right == null) {
+            return node.element;
+        }
+
+        //retorna retorna a soma dos nodos folha
+        return sumExternalNodes(node.left) + sumExternalNodes(node.right);
+    }
+
     public void breadthFirstOrder() {
-        if (root == null)
+        if (root == null) {
+            System.out.println("Árvore vazia!");
             return;
+        }
 
+        //cria uma lista encadeada com o nodo raiz
         Queue<Node> queue = new LinkedList<>();
         queue.add(root);
 
+        //enquanto a fila não estiver vazia, o current recebe o primeiro elemento da fila
         while (!queue.isEmpty()) {
             Node current = queue.poll();
+            //printa o elemento atual
             System.out.print(current.element + " ");
 
-            if (current.left != null)
+            //se left diferente de null, adiciona na fila
+            if (current.left != null) {
                 queue.add(current.left);
+            }
 
-            if (current.right != null)
+            //se right diferente de null, adiciona na fila
+            if (current.right != null) {
                 queue.add(current.right);
+            }
         }
-        System.out.println();
     }
-
-    /**
-     * Método sumBetween(...)
-     * método método que retorna a soma de valores de uma sequência de nodos (deve incluir o valor do nodo inicial, mas não do nodo final)
-     * @param start valor que corresponde ao nodo de início
-     * @param end valor que corresponde ao nodo de fim
-     * @return valor inteiro correspondente a soma dos nodos do caminho determinado
-     * */
 
     public int sumBetween(int start, int end) {
-        if (root == null || start >= end)
-            return 0;
-
-        Node startNode = findNode(start);
-        Node endNode = findNode(end);
-
-        if (startNode == null || endNode == null)
-            return 0;
-
-        Node ac = findAC(root, start, end);
-        return sumPath(ac, startNode, endNode.element);
+        return sumBetween(root, start, end);
     }
 
-    private Node findNode(int value) {
-        Node current = root;
-
-        while (current != null) {
-            if (current.element == value)
-                return current;
-
-            else if (value < current.element)
-                current = current.left;
-
-            else
-                current = current.right;
+    private int sumBetween(Node node, int start, int end) {
+        if (node == null) {
+            return 0;
         }
-        return null;
-    }
 
-    private Node findAC(Node current, int start, int end) {
-        if (current == null)
-            return null;
-
-        if (current.element > start && current.element > end)
-            return findAC(current.left, start, end);
-
-        if (current.element < start && current.element < end)
-            return findAC(current.right, start, end);
-
-        return current;
-    }
-
-    private int sumPath(Node current, Node startNode, int exclude) {
-        if (current == null)
-            return 0;
-
-        if (current.element == startNode.element)
-            return startNode.element;
-
+        //inicializa a variável sum
         int sum = 0;
-        if (current.element != exclude)
-            sum += current.element;
 
-        if (current.element > startNode.element)
-            return sum + sumPath(current.left, startNode, exclude);
+        //se nodo maior ou igual ao elemento inicial inserido no parâmetro e menor que o final,
+        //sum recebe o valor de sum + valor do nodo atual
+        if (node.element >= start && node.element < end) {
+            sum += node.element;
+        }
 
-        else
-            return sum + sumPath(current.right, startNode, exclude);
+        //se o nodo atual for maior que o inicial, continua percorrendo o lado esquerdo
+        if (node.element > start) {
+            sum += sumBetween(node.left, start, end);
+        }
+
+        //se o nodo atual for menor que o final, continua percorrendo o lado direito
+        if (node.element < end) {
+            sum += sumBetween(node.right, start, end);
+        }
+
+        //retorna o valor que está em sum neste momento
+        return sum;
     }
 }
