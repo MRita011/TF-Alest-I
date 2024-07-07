@@ -142,18 +142,36 @@ public class AVLTree {
 
         while (!queue.isEmpty()) {
             int levelSize = queue.size();
+            StringBuilder levelBuilder = new StringBuilder();
 
             for (int i = 0; i < levelSize; i++) {
                 Node current = queue.poll();
-                System.out.print(current.element + " ");
 
-                if (current.left != null)
+                // Monta a representação do nó atual
+                String nodeRepresentation = current.element + "";
+
+                // Verifica se tem filho à esquerda
+                if (current.left != null) {
                     queue.add(current.left);
+                    nodeRepresentation = "┌─" + nodeRepresentation;
+                } else {
+                    nodeRepresentation = "─" + nodeRepresentation;
+                }
 
-                if (current.right != null)
+                // Verifica se tem filho à direita
+                if (current.right != null) {
                     queue.add(current.right);
+                    nodeRepresentation += "─┐";
+                } else {
+                    nodeRepresentation += "─";
+                }
+
+                // Adiciona o nó à representação do nível
+                levelBuilder.append(nodeRepresentation);
             }
-            System.out.println(); // linha para o próximo nível
+
+            // Imprime o nível completo
+            System.out.println(levelBuilder.toString());
         }
     }
 
