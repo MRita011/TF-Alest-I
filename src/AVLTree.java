@@ -1,21 +1,23 @@
+// Imports
 import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Queue;
 import java.util.Scanner;
 
 public class AVLTree {
     private Node root;
+    private AVLFormatter formatter;
 
     public AVLTree() {
         root = null;
+        formatter = new AVLFormatter();
     }
 
-    // Adicionar elementos na árvore
+    /** Adicionar elementos na árvore */
     public void add(int value) {
         Node node = new Node(value);
         root = addAVL(root, node);
     }
 
+    // Método auxiliar pro add
     private Node addAVL(Node current, Node node) {
         if (current == null)
             // Se encontrar um nó nulo, adiciona o novo nó nele
@@ -30,7 +32,8 @@ public class AVLTree {
             current.right = addAVL(current.right, node);
 
         else
-            return current; // se o valor já existir, ele retorna o atual
+            // se o valor já existir, ele retorna o atual
+            return current;
 
         // atualizando a altura do nó atual
         updateHeight(current);
@@ -38,23 +41,54 @@ public class AVLTree {
         return balance(current);
     }
 
-    // verifica se um determinado valor está contido na arvore
+    /** Retornar o pai de um elemento */
+    public Integer getParent(int value) {
+        Node parent = findParent(root, value);
+        // retorna o pai do elemento ou nulo (se não achar)
+        return parent == null ? null : parent.element;
+    }
+
+    // Método auxiliar do getParent
+    private Node findParent(Node current, int value) {
+        if (current == null || current.element == value)
+            return null;
+
+        if ((current.left != null && current.left.element == value) || (current.right != null && current.right.element == value)) {
+            // retorna o pai atual se o filho esquerdo/direito tiver o valor
+            return current;
+        }
+
+        if (value < current.element)
+            // percorre a subarevore esquerda se o valor for < que o do nó atual
+            return findParent(current.left, value);
+
+        else
+            // procura na subarvore dirieta se o valor é >= ao do nó atual
+            return findParent(current.right, value);
+    }
+
+    /** Limpar o conteúdo da árvore */
+    public void clear() {
+        root = null;
+    }
+
+    /** Verificar se um elemento está armazenado na árvore ou não */
     public boolean contains(int value) {
         return containsNode(root, value);
     }
 
-    // Método auxiliar
+    // Método auxiliar do contains
     private boolean containsNode(Node current, int value) {
         if (current == null)
             // nó nulo == valor não está na arvore
             return false;
 
-        // retorna true se achar o valor
         if (value == current.element)
+            // retorna true se achar o valor
             return true;
 
-        // se o valor é menor que o nó atual, vai para a esquerda
         if (value < current.element)
+            // se o valor é menor que o nó atual, vai para a esquerda
             return containsNode(current.left, value);
 
         else
@@ -62,159 +96,60 @@ public class AVLTree {
             return containsNode(current.right, value);
     }
 
-    // Limpar o conteúdo da árvore
-    public void clear() {
-        root = null;
-    }
-
-    // Verificar se a árvore está vazia ou não
-    public boolean isEmpty() {
-        return root == null;
-    }
-
-    // Verificar qual é a altura da árvore
+    /** Verificar qual é a altura da árvore */
     public int height() {
         return height(root);
     }
-    // Método auxiliar
+
+    // Método auxiliar do height
     private int height(Node node) {
         if (node == null)
             // Retorna -1 se o nó for nulo
             return -1;
-
         else
             return node.height;
     }
 
-    // Verificar quantos elementos tem na árvore
+    /** Verificar quantos elementos tem na árvore */
     public int size() {
         return countNodes(root);
     }
+
     private int countNodes(Node node) {
         if (node == null)
-            return 0; // 0 se o nó for nulo
+            return 0;
 
         // conta os nós da subarvore esquerda, direita e o próprio nó
         return 1 + countNodes(node.left) + countNodes(node.right);
     }
 
-    // Retornar os elementos da árvore em uma lista usando caminhamento central
+    /** Verificar se a árvore está vazia ou não */
+    public boolean isEmpty() {
+        return root == null;
+    }
+
+    /** Retornar os elementos da árvore em uma lista usando caminhamento central */
     public ArrayList<Integer> inOrder() {
         ArrayList<Integer> erd = new ArrayList<>();
-        caminhamentoCentral(root, erd);
+        inOrderTraversal(root, erd);
         return erd;
     }
 
-    // Métodos auxiliares para ver se a arvore esta balanceada
-    private boolean isBalanced() {
-        return isBalanced(root);
-    }
-
-    private boolean isBalanced(Node node) {
-        if (node == null)
-            return true;
-
-        int balanceFactor = getBalance(node);
-        if (Math.abs(balanceFactor) > 1)
-            return false;
-
-        return isBalanced(node.left) && isBalanced(node.right);
-    }
-
-    public void treeInfo() {
-        System.out.println("Informações da árvore:");
-        System.out.println("Altura da árvore: " + height());
-        System.out.println("Número de elementos: " + size());
-        System.out.println("Balanceamento da árvore: " + (isBalanced() ? "Balanceada" : "Desbalanceada"));
-    }
-
-    // método para mostrar a arvpre
-    public void printTree() {
-        if (root == null) {
-            System.out.println("Árvore vazia!");
-            return;
-        }
-
-        Queue<Node> queue = new LinkedList<>();
-        queue.add(root);
-
-        System.out.println("Visualização da árvore AVL:");
-
-        while (!queue.isEmpty()) {
-            int levelSize = queue.size();
-            StringBuilder levelBuilder = new StringBuilder();
-
-            for (int i = 0; i < levelSize; i++) {
-                Node current = queue.poll();
-
-                // Monta a representação do nó atual
-                String nodeRepresentation = current.element + "";
-
-                // Verifica se tem filho à esquerda
-                if (current.left != null) {
-                    queue.add(current.left);
-                    nodeRepresentation = "┌─" + nodeRepresentation;
-                } else {
-                    nodeRepresentation = "─" + nodeRepresentation;
-                }
-
-                // Verifica se tem filho à direita
-                if (current.right != null) {
-                    queue.add(current.right);
-                    nodeRepresentation += "─┐";
-                } else {
-                    nodeRepresentation += "─";
-                }
-
-                // Adiciona o nó à representação do nível
-                levelBuilder.append(nodeRepresentation);
-            }
-
-            // Imprime o nível completo
-            System.out.println(levelBuilder.toString());
-        }
-    }
-
-    private void caminhamentoCentral(Node node, ArrayList<Integer> erd) {
+    private void inOrderTraversal(Node node, ArrayList<Integer> erd) {
         if (node != null) {
             // percorre a subarvore esquerda
-            caminhamentoCentral(node.left, erd);
+            inOrderTraversal(node.left, erd);
 
             // adiciona o elemento atual na lista
             erd.add(node.element);
 
             // percorre a subarvore direita
-            caminhamentoCentral(node.right, erd);
+            inOrderTraversal(node.right, erd);
         }
     }
 
-    // Retornar o pai de um elemento
-    public Integer getParent(int value) {
-        Node parent = findParent(root, value);
-        // retorna o pai do elemento ou nulo (se não achar)
-        return parent == null ? null : parent.element;
-    }
+    // ------------- Métodos Adicionados ------------- //
 
-    // Método auxiliar
-    private Node findParent(Node current, int value) {
-        if (current == null || current.element == value)
-            return null;
-
-        if (current.left != null && current.left.element == value || current.right != null && current.right.element == value) {
-            // retorna o pai atual se o filho esquerdo/direito tiver o valor
-            return current;
-        }
-
-        // percorre a subarevore esquerda se o valor for < que o do nó atual
-        if (value < current.element)
-            return findParent(current.left, value);
-
-            // procura na subarvore dirieta se o valor é >= ao do nó atual
-        else
-            return findParent(current.right, value);
-    }
-
-    // Remover elementos da árvore
     public boolean remove(int value) {
         // remove o elemento
         Node[] nodes = removeAVL(root, value);
@@ -226,7 +161,7 @@ public class AVLTree {
         return nodes[1] != null;
     }
 
-    // Método auxiliar
+    // Método auxiliar do remove
     private Node[] removeAVL(Node current, int value) {
         // retorna o array nulo (não encotrou o valor na arvore)
         if (current == null)
@@ -237,6 +172,7 @@ public class AVLTree {
         // remove da subarvore esquerda se o valor é < que o nó atual
         if (value < current.element) {
             Node[] nodes = removeAVL(current.left, value);
+
             // atualiza a subarvore esquerda
             current.left = nodes[0];
 
@@ -260,11 +196,11 @@ public class AVLTree {
             if (current.left == null)
                 return new Node[]{current.right, current};
 
-                // se a subarvore direita for nula, retorna a subarvore esquerda
+            // se a subarvore direita for nula, retorna a subarvore esquerda
             else if (current.right == null)
                 return new Node[]{current.left, current};
 
-                // se nada der certo, encontra o sucessor na subarvore direita para substituir o nó removido
+            // se nada der certo, encontra o sucessor na subarvore direita para substituir o nó removido
             else {
                 Node successor = findMin(current.right);
                 // substitui o elemento atual pelo do sucessor
@@ -275,10 +211,9 @@ public class AVLTree {
                 current.right = nodes[0];
             }
         }
-
         // atualiza a altura do nó atual
-        // retorna o nó balanceado e o nó removido
         updateHeight(current);
+        // retorna o nó balanceado e o nó removido
         return new Node[]{balance(current), removed};
     }
 
@@ -291,7 +226,7 @@ public class AVLTree {
     }
 
     private Node balance(Node node) {
-        // calculando o fator de balanceamento do nó
+        // calculando o FB do nó (FB = altura(esquerda) - altura(direita))
         int balanceFactor = getBalance(node);
 
         // verifica se desbalanceou a esquerda
@@ -303,7 +238,6 @@ public class AVLTree {
             else {
                 // rotaciona pra esquerda na subarvore esquerda
                 node.left = rotateLeft(node.left);
-
                 // rotaciona a direita o nó atual
                 node = rotateRight(node);
             }
@@ -311,14 +245,13 @@ public class AVLTree {
 
         // verifica se desbalanceou a direita
         else if (balanceFactor < -1) {
-            // rotaciona a esquerda
             if (getBalance(node.right) <= 0)
+                // rotaciona a esquerda
                 node = rotateLeft(node);
 
             else {
                 // rotaciona a direita na subarvore direita
                 node.right = rotateRight(node.right);
-
                 // rotaciona a esquerda no nó atual
                 node = rotateLeft(node);
             }
@@ -326,12 +259,11 @@ public class AVLTree {
         return node;
     }
 
-    // Atualiza a altura do nó
+    // Método auxilair pra att. a altura do nó
     private void updateHeight(Node node) {
         node.height = 1 + Math.max(height(node.left), height(node.right));
     }
 
-    // Calcula o fator de balanceamento do nó
     private int getBalance(Node node) {
         return node == null ? 0 : height(node.left) - height(node.right);
     }
@@ -368,105 +300,146 @@ public class AVLTree {
         return x;
     }
 
+
+    // Imprimir a arvore ERD
     public void printInOrder() {
         ArrayList<Integer> inOrderList = inOrder();
+        System.out.println("Elementos da árvore AVL em ordem:");
+        for (Integer element : inOrderList) {
+            System.out.print(element + " , ");
+        }
+        System.out.println();
     }
 
-    class Node {
-        int element;
-        Node left, right; // ref. dos filhos esquerdo e direito
-        int height;
+    // Formatando a arvore
+    public void printFormattedTree() {
+        if (root == null) {
+            System.out.println("Árvore vazia!");
+            return;
+        }
+        String formattedTree = formatter.topDown(root);
+        System.out.println(formattedTree);
+    }
+
+    // Mostrar informações
+    public void treeInfo() {
+        System.out.println("Informações da Árvore AVL:");
+        System.out.println("Altura da árvore: " + height());
+        System.out.println("Número de elementos na árvore: " + size());
+        System.out.println("Elementos em ordem:");
+        printInOrder();
+    }
+
+    static class Node {
+        int element, height;
+        Node left, right;
 
         Node(int element) {
+            this(element, null, null);
+        }
+
+        Node(int element, Node left, Node right) {
             this.element = element;
-            this.height = 0;
+            this.left = left;
+            this.right = right;
+            height = 0;
         }
     }
 
-    // c) Testar a árvore de pesquisa implementada de acordo com as instruções fornecidas
+    // Implemente um método main que instancie a árvore implementada e chame os seus métodos para verificar o correto funcionamento;
     public static void main(String[] args) {
-        Scanner scan = new Scanner(System.in);
-
+        Scanner in = new Scanner(System.in);
         // Instanciar a árvore implementada;
         AVLTree avlTree = new AVLTree();
         int op, value;
 
         do {
-            System.out.println("\nÁRVORE AVL");
-            System.out.println("---------------------------------------");
-            System.out.println("1 | Adicionar nodo");
-            System.out.println("2 | Remover nodo");
-            System.out.println("3 | Pesquisar nodo");
-            System.out.println("4 | Exibir a árvore");
-            System.out.println("5 | Mostrar informações");
-            System.out.println("6 | Testar árvore");
-            System.out.println("8 | Esvaziar árvore");
-            System.out.println("0 | Sair do programa");
-            System.out.println("---------------------------------------");
-            System.out.print("Digite a opção desejada: ");
+            System.out.println("\nÁRVORE AVL\n" +
+                    "---------------------------------------\n" +
+                    "01 | Adicionar nodo\n" +
+                    "02 | Remover nodo\n" +
+                    "03 | Pesquisar nodo\n" +
+                    "04 | Exibir árvore\n" +
+                    "05 | Mostrar informações\n" +
+                    "06 | Testar árvore\n" +
+                    "07 | Imprimir elementos em ordem (ERD)\n" +
+                    "08 | Limpar árvore\n" +
+                    "09 | Mostrar o pai de um elemento\n" +
+                    "10 | Imprimir árvore\n" +
+                    "0 | Sair\n" +
+                    "---------------------------------------\n" +
+                    "Escolha uma opção: ");
+            op = in.nextInt();
 
-            op = scan.nextInt();
             switch (op) {
                 case 1 -> {
-                    System.out.print("Informe um valor inteiro: ");
-                    value = scan.nextInt();
-                    avlTree.add(value);
-                }
-                case 2 -> {
-                    System.out.print("Informe um valor inteiro: ");
-                    value = scan.nextInt();
+                    System.out.println("Digite um valor (inteiro) a ser adicionado: ");
+                    value = in.nextInt();
 
-                    if (!avlTree.remove(value))
-                        System.out.println("Valor não encontrado!");
+                    avlTree.add(value);
+                    System.out.println("O valor " + value + " foi adicionado com sucesso!");
                 }
+
+                case 2 -> {
+                    System.out.print("Digite o valor a ser removido: ");
+                    value = in.nextInt();
+
+                    if (avlTree.remove(value))
+                        System.out.println("Valor removido!");
+                    else
+                        System.out.println("Valor não encontrado na árvore.");
+                }
+
                 case 3 -> {
-                    System.out.print("Informe um valor inteiro: ");
-                    value = scan.nextInt();
+                    System.out.println("Digite o valor (inteiro) que deseja pesquisar: ");
+                    value = in.nextInt();
 
                     if (avlTree.contains(value))
-                        System.out.println("Valor encontrado!");
-
+                        System.out.println("O valor " + value + " foi encontrado na árvore!!");
                     else
-                        System.out.println("Valor não encontrado!");
+                        System.out.println("O valor " + value + " não foi encontrado :c.");
                 }
+
                 case 4 -> {
-                    avlTree.printInOrder();
+                    avlTree.printFormattedTree();
                 }
+
                 case 5 -> {
                     avlTree.treeInfo();
                 }
+
                 case 6 -> {
-                    // Incluir os números 1, 2, 3, 4, 5, 6, 7, 8, 9, nesta ordem, na árvore;
-                    System.out.println("Testando a árvore com inserção de 1 a 9:");
-                    AVLTree testTree = new AVLTree();
+                    // Adicionar números em ordem crescente
+                    int[] numbers = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+                    for (int num : numbers)
+                        avlTree.add(num);
 
-                    int[] numerosCres = {1, 2, 3, 4, 5, 6, 7, 8, 9};
-                    for (int num : numerosCres) {
-                        testTree.add(num);
-                    }
-                    testTree.printTree();
+                    System.out.println("Árvore após adicionar números 1-9:");
+                    avlTree.printFormattedTree();
 
-                    // Apresentar a altura da árvore;
-                    System.out.println("Altura da árvore: " + testTree.height());
-
-                    // Limpar o conteúdo da árvore;
-                    testTree.clear();
+                    avlTree.clear();
                     System.out.println("Árvore após limpar:");
-                    testTree.printInOrder();
+                    avlTree.printFormattedTree();
 
-                    // Incluir os números 9, 8, 7, 6, 5, 4, 3, 2, 1, nesta ordem, na árvore;
-                    System.out.println("Testando a árvore com inserção de 9 a 1:");
-                    int[] numerosDec = {9, 8, 7, 6, 5, 4, 3, 2, 1};
-                    for (int num : numerosDec) {
-                        testTree.add(num);
-                    }
-                    testTree.printTree();
+                    int[] numbersReverse = {9, 8, 7, 6, 5, 4, 3, 2, 1};
+                    for (int num : numbersReverse)
+                        avlTree.add(num);
+
+                    System.out.println("Árvore após adicionar números 9-1:");
+                    avlTree.printFormattedTree();
+                }
+                case 7 -> {
+                    avlTree.printInOrder();
                 }
                 case 8 -> {
                     avlTree.clear();
+                    System.out.println("A árvore foi limpa!");
+                }
+                case 0 -> {
+                    System.out.println("Saindo... :(");
                 }
             }
         } while (op != 0);
-        scan.close();
+        in.close();
     }
 }

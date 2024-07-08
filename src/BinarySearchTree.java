@@ -1,13 +1,13 @@
+// Imports
 import java.util.LinkedList;
 import java.util.Queue;
 
 /**
  * CLASSE BinarySearchTree
  * Trabalhando com árvore binária de pesquisa
- * */
+ */
 
 class BinarySearchTree {
-
     private Node root;
 
     public BinarySearchTree() {
@@ -15,7 +15,6 @@ class BinarySearchTree {
     }
 
     public void add(Integer v) {
-
         Node prev, current;
 
         // cria um novo nodo
@@ -27,9 +26,10 @@ class BinarySearchTree {
         node.left = null;
 
         // se a raiz está nula, a árvore está vazia
-        if (root == null) {
+        if (root == null)
             root = node;
-        } else {
+
+        else {
             current = root;
             // percorre a árvore
             while (true) {
@@ -79,7 +79,6 @@ class BinarySearchTree {
         return current;
     }
 
-
     public boolean remove(Integer v) {
         // se arvore vazia
         if (root == null)
@@ -93,6 +92,7 @@ class BinarySearchTree {
         while (current.element != v) {
             // enquanto nao encontrou
             father = current;
+
             // caminha para esquerda
             if (v < current.element) {
                 current = current.left;
@@ -268,11 +268,12 @@ class BinarySearchTree {
         }
     }
 
+    // ------------- Métodos Adicionados ------------- //
+
     public int minNodeLevel() {
         //se árvore vazia, retorna 0
-        if (root == null) {
+        if (root == null)
             return 0;
-        }
 
         //inicia pelo root e atribui o nível 0
         Node current = root;
@@ -289,9 +290,8 @@ class BinarySearchTree {
     }
 
     public int diffMaxRoot() {
-        if (root == null) {
+        if (root == null)
             return 0;
-        }
 
         //inicia a procura pela raiz
         Node current = root;
@@ -306,28 +306,24 @@ class BinarySearchTree {
     }
 
     public int countInternalNodes(Node node) {
-        if (node == null) {
+        if (node == null)
             return 0;
-        }
 
         //verifica se é folha
-        if (node.left == null && node.right == null) {
+        if (node.left == null && node.right == null)
             return 0;
-        }
 
         //conta o nodo atual e os anteriores
         return 1 + countInternalNodes(node.left) + countInternalNodes(node.right);
     }
 
     public int sumExternalNodes(Node node) {
-        if (node == null) {
+        if (node == null)
             return 0;
-        }
 
         //verifica se é folha
-        if (node.left == null && node.right == null) {
+        if (node.left == null && node.right == null)
             return node.element;
-        }
 
         //retorna retorna a soma dos nodos folha
         return sumExternalNodes(node.left) + sumExternalNodes(node.right);
@@ -350,14 +346,12 @@ class BinarySearchTree {
             System.out.print(current.element + " ");
 
             //se left diferente de null, adiciona na fila
-            if (current.left != null) {
+            if (current.left != null)
                 queue.add(current.left);
-            }
 
             //se right diferente de null, adiciona na fila
-            if (current.right != null) {
+            if (current.right != null)
                 queue.add(current.right);
-            }
         }
     }
 
@@ -366,28 +360,24 @@ class BinarySearchTree {
     }
 
     private int sumBetween(Node node, int start, int end) {
-        if (node == null) {
+        if (node == null)
             return 0;
-        }
 
         //inicializa a variável sum
         int sum = 0;
 
         //se nodo maior ou igual ao elemento inicial inserido no parâmetro e menor que o final,
         //sum recebe o valor de sum + valor do nodo atual
-        if (node.element >= start && node.element < end) {
+        if (node.element >= start && node.element < end)
             sum += node.element;
-        }
 
         //se o nodo atual for maior que o inicial, continua percorrendo o lado esquerdo
-        if (node.element > start) {
+        if (node.element > start)
             sum += sumBetween(node.left, start, end);
-        }
 
         //se o nodo atual for menor que o final, continua percorrendo o lado direito
-        if (node.element < end) {
+        if (node.element < end)
             sum += sumBetween(node.right, start, end);
-        }
 
         //retorna o valor que está em sum neste momento
         return sum;
